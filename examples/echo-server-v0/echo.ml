@@ -35,7 +35,13 @@ module S = React.S.Make(Eq)
 module Debug : INTERFACE = struct
 
   let f s =
-    Lwt.ignore_result (Lwt_io.eprintf "Echoing: %s" s);
+(*
+    Printf.eprintf "Echoing: %s\n%!" s;
+*)
+    Lwt.ignore_result (
+      Lwt_io.eprintf "Echoing: %s\n" s >>= fun () ->
+      Lwt_io.flush Lwt_io.stderr
+    );
     s
 
   let eqtok () = Debug
@@ -66,9 +72,10 @@ let m =
 let linewise_map ic f oc =
   Lwt_io.write_lines oc (Lwt_stream.map f (Lwt_io.read_lines ic))
 
+let mapper s =
+  let module M = (val (React.S.value m): INTERFACE) in
+  M.f s
 
 let f (ic, oc) =
-  (* right now, we don't switch the mode of already openned connections. *)
-  let module M = (val (React.S.value m): INTERFACE) in
-  Lwt.ignore_result (linewise_map ic M.f oc)
+  Lwt.ignore_result (linewise_map ic mapper oc)
 
