@@ -8,55 +8,79 @@ val memo_memo : ('a, 'b) Hashtbl.t React.signal -> 'a -> 'b
 (*Starting and restarting*)
 
 (**
-[c = start_and_restart starter restarter signal] listens to changes of [signal]
-and call [restarter v s] where [v] is the previous value of [c] and [s] is the
+[c = start_restart start restart signal] listens to changes of [signal]
+and call [restart v s] where [v] is the previous value of [c] and [s] is the
 new value of [signal] (the one that triggered the change).
 
-[c]'s starting value is [starter s] where [s] is the current value of [signal].
+[c]'s starting value is [start s] where [s] is the current value of [signal].
  *)
-val start_and_restart :
+val start_restart :
   ?eq:('a -> 'a -> bool) ->
-  ('b -> 'a) -> ('a -> 'b -> 'a) -> 'b React.signal -> 'a React.signal
+  start:('b -> 'a) ->
+  restart:('a -> 'b -> 'a) ->
+  'b React.signal ->
+  'a React.signal
 
 (**
-[c = start_stop_and_restart starter stoper state signal] listens to changes of
-[signal] and calls [starter (stoper v) s] where [v] is the previous value of [c]
+[c = start_and_adapt start restart signal] listens to changes of [signal]
+and call [restart v s] where [v] is the previous value of [c] and [s] is the
+new value of [signal] (the one that triggered the change).
+
+[c]'s starting value is [start s] where [s] is the current value of [signal].
+ *)
+val start_and_adapt :
+  ?eq:('a -> 'a -> bool) ->
+  start:('b -> 'a) ->
+  adapt:('a -> 'b -> 'a) ->
+  'b React.signal ->
+  'a React.signal
+
+(**
+[c = start_and_stop_state start stop state signal] listens to changes of
+[signal] and calls [start (stop v) s] where [v] is the previous value of [c]
 and [s] is the new value of [signal] (the one that triggered the change).
 Information can flow from the previous instance (being stopped) and the new one
-(being started) by having the [stoper] returning some state and having the
-[starter] using it.
+(being started) by having the [stop] returning some state and having the
+[start] using it.
 
-[c]'s starting value is [starter state s] where [s] is the current value of
+[c]'s starting value is [start state s] where [s] is the current value of
 [signal].
  *)
-val start_stop_and_restart :
+val start_and_stop_state :
   ?eq:('a -> 'a -> bool) ->
-  ('b -> 'c -> 'a) -> ('a -> 'b) -> 'b -> 'c React.signal -> 'a React.signal
-
+  start:('b -> 'c -> 'a) ->
+  stop:('a -> 'b) ->
+  'b ->
+  'c React.signal ->
+  'a React.signal
 (**
-[c = start_stop_and_start_again starter stoper signal] listens to changes of
-[signal] and calls [stoper v; starter s] where [v] is the previous value of [c]
+[c = start_and_stop start stop signal] listens to changes of
+[signal] and calls [stop v; start s] where [v] is the previous value of [c]
 and [s] is the new value of [signal] (the one that triggered the change).
 No information can flow from the previous instance to the new one.
 
-[c]'s starting value is [starter s] where [s] is the current value of [signal].
+[c]'s starting value is [start s] where [s] is the current value of [signal].
  *)
-val start_stop_and_start_again :
+val start_and_stop :
   ?eq:('a -> 'a -> bool) ->
-  ('b -> 'a) -> ('a -> 'c) -> 'b React.signal -> 'a React.signal
+  start:('b -> 'a) ->
+  stop:('a -> unit) ->
+  'b React.signal ->
+  'a React.signal
+
 
 (**
-[c = start_and_let_die starter signal] listens to changes of [signal] and calls
-[starter s] where [s] is the new value of [signal] (the one that triggered the
+[c = start_and_let_die start signal] listens to changes of [signal] and calls
+[start s] where [s] is the new value of [signal] (the one that triggered the
 change). No information can flow from the previous instance to the new one and
 old instances have to be stoped by some other way if necessary (/!\ beware of
 leaks /!\)
 
-[c]'s starting value is [starter s] where [s] is the current value of [signal].
+[c]'s starting value is [start s] where [s] is the current value of [signal].
  *)
-val start_and_let_die :
-  ?eq:('a -> 'a -> bool) -> ('b -> 'a) -> 'b React.signal -> 'a React.signal
-
+val start_and_ :
+  ?eq:('a -> 'a -> bool) ->
+  start:('b -> 'a) -> 'b React.signal -> 'a React.signal
 
 (** A type that keeps track of the state (running or suspended) of a.. A what
   exactly?
@@ -70,25 +94,26 @@ val eq_running: ('a -> 'a -> bool) -> ('b -> 'b -> bool)
 
 
 (**
-[run_when starter suspender recoverer signal] listens for changes in [signal]
-and calls [suspender] (resp [recoverer]) whenever it switches to [true] (resp
+[run_when start suspend recover signal] listens for changes in [signal]
+and calls [suspend] (resp [recover]) whenever it switches to [true] (resp
 [false]).
 
-Information can flow from [suspender] to [recoverer].
+Information can flow from [suspend] to [recover].
 
 The initial value of the returned signal is [start ()].
  *)
 val run_when :
   ?eq:(('a, 'b) running -> ('a, 'b) running -> bool) ->
-  (unit -> 'a) ->
-  ('a -> 'b) ->
-  ('b -> 'a) ->
-  bool React.signal -> ('a, 'b) running React.signal
+  start:(unit -> 'a) ->
+  suspend:('a -> 'b) ->
+  recover:('b -> 'a) ->
+  bool React.signal ->
+  ('a, 'b) running React.signal
 
 
 (**
-[run_opt starter adapter suspender recoverer signal] listens for changes in
-[signal] and calls [suspender] (resp [recoverer]) (resp [adapter] whenever it
+[run_opt start adapter suspend recover signal] listens for changes in
+[signal] and calls [suspend] (resp [recover]) (resp [adapter] whenever it
 switches from [Some _] to [None] (resp from [None] to [Some _]) (resp from [Some
 _] to [Some _]).
 
@@ -97,9 +122,10 @@ value of [signal].
  *)
 val run_opt :
   ?eq:(('run, 'susp) running -> ('run, 'susp) running -> bool) ->
-  ('c option -> ('run, 'susp) running) ->
-  ('c -> 'run -> 'run) ->
-  ('run -> 'susp) ->
-  ('c -> 'susp -> 'run) ->
-  'c option React.signal ->
+  start:('t option -> ('run, 'susp) running) ->
+  adapt:('t -> 'run -> 'run) ->
+  suspend:('run -> 'susp) ->
+  recover:('t -> 'susp -> 'run) ->
+  't option React.signal ->
   ('run, 'susp) running React.signal
+
