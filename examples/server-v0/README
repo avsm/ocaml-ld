@@ -1,0 +1,11 @@
+This is a simple server.
+
+It support dynamic change of functionnality (echo, uppercase-echo or
+lowercase-echo) and dynamic change of debugging verbosity (full or none). It
+uses localhost for connections.
+
+This is only a small experiment to test the feasability of FRP based dynamic
+reconfiguration.
+
+The version 0 is built without any use of the support library.
+
