@@ -1,6 +1,6 @@
 
-TARGET = memo.cmx
-SOURCE = memo.ml
+TARGET = ld.cmx
+SOURCE = ld.ml
 
 all: $(TARGET)
 
