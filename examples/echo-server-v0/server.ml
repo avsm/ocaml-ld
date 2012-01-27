@@ -1,3 +1,22 @@
+let (>>=) = Lwt.(>>=)
+let (>|=) = Lwt.(>|=)
+
+
+let linewise_map ic f oc =
+  Lwt_io.write_lines oc (Lwt_stream.map_s f (Lwt_io.read_lines ic))
+
+let f (ic, oc) =
+  Lwt.ignore_result (
+    linewise_map
+      ic
+      (fun s ->
+        Debug.before s      >>= fun () ->
+        Lwt.return (Fn.f s) >>= fun s  ->
+        Debug.after s       >>= fun () ->
+        Lwt.return s
+      )
+      oc
+  )
 
 let s =
   React.S.fold
@@ -6,12 +25,12 @@ let s =
       Lwt_io.establish_server
         ~backlog
         addr
-        Echo.f
+        f
     )
     (Lwt_io.establish_server
       ~backlog:(React.S.value Conf.backlog)
       (React.S.value Conf.addr)
-      Echo.f
+      f
     )
     (React.S.changes (React.S.l2 (fun x y -> (x, y)) Conf.backlog Conf.addr))
 

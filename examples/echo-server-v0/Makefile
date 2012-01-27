@@ -1,6 +1,6 @@
 
 TARGET = server.native
-SOURCE = conf.ml echo.ml server.ml
+SOURCE = conf.ml fn.ml debug.ml server.ml
 
 all: $(TARGET)
 
