@@ -13,8 +13,8 @@ let addr =
 
 type fn =
   | Echo
-(*   | Uppercase *)
-(*   | Lowercase *)
+  | Uppercase
+  | Lowercase
 
 let (fn, set_fn) = React.S.create Echo
 
@@ -39,8 +39,8 @@ let unsafe_parse s = match s with
   | s when String.sub s 0 2 = "fn" -> begin
     match String.sub s 3 (String.length s - 3) with
     | "echo" -> set_fn Echo
-(*     | "upper" -> set_fn Uppercase *)
-(*     | "lower" -> set_fn Lowercase *)
+    | "upper" -> set_fn Uppercase
+    | "lower" -> set_fn Lowercase
     | _ -> raise (Invalid_argument "")
     end
   | s when String.sub s 0 4 = "port" ->
