@@ -20,8 +20,8 @@ let f (ic, oc) =
 
 let s =
   Ld.start_and_stop
-    (fun (backlog, addr) -> Lwt_io.establish_server ~backlog addr f)
-    Lwt_io.shutdown_server
+    ~start:(fun (backlog, addr) -> Lwt_io.establish_server ~backlog addr f)
+    ~stop:Lwt_io.shutdown_server
     (React.S.l2 (fun x y -> (x, y)) Conf.backlog Conf.addr)
 
 
