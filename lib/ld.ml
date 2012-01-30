@@ -123,3 +123,36 @@ let run_opt ?eq ~start ~adapt ~suspend ~recover s =
     (React.S.changes s)
 
 
+
+
+
+(*TODO: one fuinction with all the options*)
+let map ?eq ?(before = ignore) ?(after = ignore) f s =
+  let ev =
+    React.E.map
+      (fun y -> after y; y)
+      (React.E.map
+        (fun x -> before x; f x)
+        (React.S.changes s)
+      )
+  in
+  React.S.hold
+    ?eq
+    (f (React.S.value s))
+    ev
+
+let map_ ?eq ?(on_change = (fun _ _ -> ())) f s =
+  let ev =
+    React.E.map
+      (fun x ->
+        let y = f x in
+        on_change x y;
+        y
+      )
+      (React.S.changes s)
+  in
+  React.S.hold
+    ?eq
+    (f (React.S.value s))
+    ev
+

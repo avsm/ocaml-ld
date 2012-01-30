@@ -129,3 +129,14 @@ val run_opt :
   't option React.signal ->
   ('run, 'susp) running React.signal
 
+
+
+(*WIP/TODO*)
+val map :
+  ?eq:('a -> 'a -> bool) ->
+  ?before:('b -> unit) ->
+  ?after:('a -> unit) -> ('b -> 'a) -> 'b React.signal -> 'a React.signal
+val map_ :
+  ?eq:('a -> 'a -> bool) ->
+  ?on_change:('b -> 'a -> unit) ->
+  ('b -> 'a) -> 'b React.signal -> 'a React.signal
