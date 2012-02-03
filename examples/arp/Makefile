@@ -1,6 +1,6 @@
 
 TARGET = arp.native
-SOURCE = nettypes.ml arp.ml
+SOURCE = memo.ml nettypes.ml arp.ml
 
 all: $(TARGET)
 
