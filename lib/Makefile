@@ -1,11 +1,10 @@
 
-TARGET = ld.cmx
-SOURCE = ld.ml
+TARGETS = ld.cmx memo.cmx switchables.cmx
 
-all: $(TARGET)
+all: $(TARGETS)
 
-$(TARGET): $(SOURCE)
-	ocamlbuild -pkg lwt.unix -pkg react -pkg unix $@
+%.cmx: %.ml
+	ocamlbuild -pkg froc -pkg lwt.unix -pkg react -pkg unix $@
 
 clean:
-	rm -rf $(TARGET) _build
+	rm -rf $(TARGETS) _build
