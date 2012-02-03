@@ -18,6 +18,8 @@ module ARP : sig
   val rem_bound_ip: ipv4_addr -> unit
   val send_request: ipv4_addr -> unit
 
+  val query: ipv4_addr -> ethernet_mac option Froc_sa.t
+
 end = struct
 
   module M =
@@ -81,6 +83,19 @@ end = struct
       with Not_found -> ipv4_blank
     in
     !output_r { op=`Request; tha; sha; tpa; spa }
+
+  let never_eq _ _ = false
+
+  (*Alternative: store changeables in the map*)
+  let query_table table =
+    return (fun eth ->
+      try Some (M.find eth table)
+      with Not_found ->
+        send_request eth;
+        None
+    )
+
+  let query = Memo.fn (bind ~eq:never_eq cache query_table)
 
 end
 
