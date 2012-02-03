@@ -28,4 +28,5 @@ let fn ?eq f =
   let f = app ?eq f in
   (fun x -> f (return x))
 
-let lift ?eq _ = failwith "TODO"
+let lift ?eq f = app ?eq (return f)
+
