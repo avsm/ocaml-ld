@@ -1,5 +1,5 @@
 
-TARGETS = ld.cmx memo.cmx switchables.cmx
+TARGETS = ld.cmx memo.cmx switchables.cmx froc_lwt.cmx
 
 all: $(TARGETS)
 
