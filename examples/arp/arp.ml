@@ -43,6 +43,12 @@ module ARP : sig
    *)
   val query: ipv4_addr -> ethernet_mac option Froc_sa.t
 
+  (* queries a given ip address and returns the current value in the arp cache.
+   * If the value is not there (returning [None]) then a request is sent, except
+   * if [with_req] is [false] (which is not by default).
+   *)
+  val query1: ?with_req:bool -> ipv4_addr -> ethernet_mac option
+
 end = struct
 
   module M =
@@ -119,6 +125,12 @@ end = struct
     )
 
   let query = Memo.fn (bind ~eq:never_eq cache query_table)
+
+  let query1 ?(with_req = true) eth =
+    try Some (M.find eth (read cache))
+    with Not_found ->
+      (if with_req then send_request eth);
+      None
 
 end
 
