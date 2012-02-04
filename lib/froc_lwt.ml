@@ -2,7 +2,8 @@
 let stream_of_changeable c =
   let (s, push) = Lwt_stream.create () in
   let really_push x = push (Some x) in
-  let forward = Froc_sa.lift really_push c in (*How to make it uncollectable?*)
+  let forward = Froc_sa.lift really_push c in
+  Gc.finalise (fun _ -> ignore forward) s; (*To avoid garbage collection*)
   s
 
 (*
