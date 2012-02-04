@@ -49,6 +49,8 @@ module ARP : sig
    *)
   val query1: ?with_req:bool -> ipv4_addr -> ethernet_mac option
 
+  val query_lwt: ipv4_addr -> ethernet_mac Lwt.t
+
 end = struct
 
   module M =
@@ -131,6 +133,14 @@ end = struct
     with Not_found ->
       (if with_req then send_request eth);
       None
+
+  let query_lwt eth =
+    Lwt_stream.next
+      (Lwt_stream.filter_map (fun x -> x)
+        (Froc_lwt.stream_of_changeable
+          (query eth)
+        )
+      )
 
 end
 

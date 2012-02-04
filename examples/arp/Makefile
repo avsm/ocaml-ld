@@ -1,11 +1,11 @@
 
 TARGET = arp.native
-SOURCE = memo.ml nettypes.ml arp.ml
+SOURCE = froc_lwt.ml memo.ml nettypes.ml arp.ml
 
 all: $(TARGET)
 
 $(TARGET): $(SOURCE)
-	ocamlbuild -pkg froc $@
+	ocamlbuild -pkg froc -pkg lwt $@
 
 clean:
 	rm -rf $(TARGET) _build
