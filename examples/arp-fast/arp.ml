@@ -102,6 +102,10 @@ end = struct
       (* Solution: have a 'remove' function that writes [None] and removes the
        * binding in the table.
        *)
+  (*FIXME: currently relies on the number of bound ips to be small. *)
+      (* Solution: have two implementations (one for less than 20 bound ip
+       * addresses and one for more than 15) and dynamically swap between tham.
+       *)
 
 
 end
