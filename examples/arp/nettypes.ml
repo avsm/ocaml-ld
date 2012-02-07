@@ -93,4 +93,16 @@ type arp = {
   tpa: ipv4_addr;
 }
 
+let string_of_arp { op; sha; spa; tha; tpa; } =
+  Printf.sprintf "%s  %s  %s  %s  %s"
+    (match op with
+      |`Request -> "request"
+      |`Reply -> "reply"
+      |`Unknown i -> "unknown " ^ string_of_int i
+    )
+    (ethernet_mac_to_string sha)
+    (ipv4_addr_to_string spa)
+    (ethernet_mac_to_string tha)
+    (ipv4_addr_to_string tpa)
+
 
