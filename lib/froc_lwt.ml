@@ -1,5 +1,5 @@
 
-(*DOs and DONTs (although, only DONTs right now
+(*DOs and DONTs
  *
  * DONT expose writables (because it exposes the next DONT to the user)
  * DONT change and yield (or otherwise switch thread)
@@ -12,6 +12,9 @@
  *      whole system (in particullar, the data-plan) will be reactive (although
  *      theoretically appealing, it is better, for performance reasons, to
  *      restrict the reactive part to the configuration-plan).
+ * DONT use read under a bind (to avoid inconsistencies) but
+ * DO   use read when you are in the data-plane (and thus not threading the
+ *      changeables around).
  *)
 
 
