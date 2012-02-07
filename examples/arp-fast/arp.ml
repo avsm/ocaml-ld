@@ -32,7 +32,7 @@ end = struct
 
   (*TODO? propose a patch to Lwt for this combinator?*)
   (*TODO? propose a patch to Lwt for 'a t list -> ('a -> 'a t list -> 'b t) -> 'b t *)
-  let pick_and_do t1 t2 h1 h2 =
+  let fork_and_join t1 t2 h1 h2 =
     let open Lwt in
     choose
       [ (t1 >|= fun x1 -> `One x1)
@@ -88,7 +88,7 @@ end = struct
       H.add cache eth tu;
       send_request eth;
       Lwt.ignore_result (
-        pick_and_do
+        fork_and_join
           (Lwt_stream.next
             (Lwt_stream.filter_map (fun x -> x)
               (Froc_lwt.stream_of_changeable t)
